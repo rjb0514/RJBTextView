@@ -8,6 +8,15 @@
 
 #import "RJBTextView.h"
 
+@interface RJBTextView ()
+
+/**占位文字 label*/
+@property (nonatomic, strong) UILabel *placeholderLabel;
+
+
+@end
+
+
 @implementation RJBTextView
 
 
@@ -15,87 +24,88 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        //默认站位 文字大小
-        self.font = [UIFont systemFontOfSize:18];
+        //placeholderLabel
         //默认站位 文字颜色
         self.placeholderColor = [UIColor redColor];
-        
+        self.font = [UIFont systemFontOfSize:18];
+        //默认垂直方向滚动
+        self.alwaysBounceVertical = YES;
         //代码改 text 不会走通知
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:) name:UITextViewTextDidChangeNotification object:nil];
-        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange) name:UITextViewTextDidChangeNotification object:nil];
     }
     return self;
 }
 
 
-- (void)textDidChange:(UITextView *)textView {
-    NSLog(@"%@",textView);
-    [self setNeedsDisplay];
-//    [self layoutIfNeeded]
+- (void)textDidChange {
+    //只要有文字就隐藏占位位子
+    self.placeholderLabel.hidden = self.hasText;
     
 }
 
-- (void)drawRect:(CGRect)rect {
+/**
+ 更新占位文字的 尺寸
+ */
+- (void)updatePlaceholderLabelSize {
     
-//    if (self.text.length || self.attributedText.length) {
-//        //如果有文字直接返回
-//        return;
-//    }
+    CGSize maxSize = CGSizeMake(self.frame.size.width - 4, self.frame.size.height);
     
-    //如果有文字
-    if (self.hasText) {
-        return;
-    }
-    
-    //处理rect
-    rect.origin.x = 3;
-    rect.origin.y = 7;
-    rect.size.width  -= 2 * rect.origin.x;
-    
-    
-    
-    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
-    [dic setValue:self.font forKey:NSFontAttributeName];
-    [dic setValue:self.placeholderColor forKey:NSForegroundColorAttributeName];
-    
-    [self.placeholder drawInRect:rect withAttributes:dic];
-    
-    
+    CGSize tempSize = [self.placeholder boundingRectWithSize:maxSize options:(NSStringDrawingUsesLineFragmentOrigin) attributes:@{NSFontAttributeName:self.font} context:nil].size;
+    //4 7 表示文字有点距离 要不就贴住父控件 很难看
+    self.placeholderLabel.frame = CGRectMake(4, 7, tempSize.width, tempSize.height);
 }
+
 
 #pragma mark -防止随时改变文字颜色没效果
 - (void)setPlaceholder:(NSString *)placeholder {
     _placeholder = placeholder;
-    
-    [self setNeedsDisplay];
+    self.placeholderLabel.text = placeholder;
+    //更新占位文字高度
+    [self updatePlaceholderLabelSize];
 }
 
 - (void)setPlaceholderColor:(UIColor *)placeholderColor {
     _placeholderColor = placeholderColor;
-    
-    [self setNeedsDisplay];
+    self.placeholderLabel.textColor = placeholderColor;
 }
 
 - (void)setFont:(UIFont *)font {
     [super setFont:font];
-    
-    [self setNeedsDisplay];
+    self.placeholderLabel.font = font;
+    //更新占位文字高度
+    [self updatePlaceholderLabelSize];
 }
 
 - (void)setText:(NSString *)text {
     [super setText:text];
     
-    [self setNeedsDisplay];
+    //为了安全起见 怕外界 直接调用设置文字 所以占位Lable还得判断
+    [self textDidChange];
 }
 
 - (void)setAttributedText:(NSAttributedString *)attributedText {
     [super setAttributedText:attributedText];
-    [self setNeedsDisplay];
+
+    //为了安全起见 怕外界 直接调用设置文字 所以占位Lable还得判断
+    [self textDidChange];
 }
 
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+
+#pragma mark - lazy
+- (UILabel *)placeholderLabel {
+    if (!_placeholderLabel) {
+        _placeholderLabel = [UILabel new];
+        _placeholderLabel.numberOfLines = 0;
+        [self addSubview:_placeholderLabel];
+        //默认站位 文字大小
+        _placeholderLabel.font = [UIFont systemFontOfSize:18];
+    }
+    return _placeholderLabel;
 }
 
 

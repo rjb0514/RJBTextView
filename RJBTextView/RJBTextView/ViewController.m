@@ -24,7 +24,7 @@
     textView.frame = self.view.bounds;
     [self.view addSubview:textView];
     //设置占位文字
-    textView.placeholder = @"我是占位文字";
+    textView.placeholder = @"我是占位文字房间大路口附近打死了防静电拉设计费老大撒解放路的撒解放路傻到家了";
     //设置占位颜色
     textView.placeholderColor = [UIColor greenColor];
     
