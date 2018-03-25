@@ -46,7 +46,9 @@
 /**
  更新占位文字的 尺寸
  */
-- (void)updatePlaceholderLabelSize {
+- (void)layoutSubviews {
+    
+    [super layoutSubviews];
     
     CGSize maxSize = CGSizeMake(self.frame.size.width - 4, self.frame.size.height);
     
@@ -61,7 +63,7 @@
     _placeholder = placeholder;
     self.placeholderLabel.text = placeholder;
     //更新占位文字高度
-    [self updatePlaceholderLabelSize];
+    [self setNeedsLayout];
 }
 
 - (void)setPlaceholderColor:(UIColor *)placeholderColor {
@@ -73,7 +75,7 @@
     [super setFont:font];
     self.placeholderLabel.font = font;
     //更新占位文字高度
-    [self updatePlaceholderLabelSize];
+    [self setNeedsLayout];
 }
 
 - (void)setText:(NSString *)text {
