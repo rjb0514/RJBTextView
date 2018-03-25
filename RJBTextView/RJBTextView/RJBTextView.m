@@ -52,7 +52,7 @@
     
     CGSize tempSize = [self.placeholder boundingRectWithSize:maxSize options:(NSStringDrawingUsesLineFragmentOrigin) attributes:@{NSFontAttributeName:self.font} context:nil].size;
     //4 7 表示文字有点距离 要不就贴住父控件 很难看
-    self.placeholderLabel.frame = CGRectMake(4, 7, tempSize.width, tempSize.height);
+    self.placeholderLabel.frame = CGRectMake(2, 7, tempSize.width, tempSize.height);
 }
 
 
